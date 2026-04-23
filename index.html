@@ -2275,24 +2275,24 @@ function closeModal(id) {
     // Only restore scroll if no other modals open
     if (!document.querySelector('.modal-overlay.open')) document.body.style.overflow = '';
   }
+  // Reset grouped neg state
+  if (id === 'modal-negociacao' || id === 'modal-sel-titulo') {
+    _negGrupoIds = [];
+    _negGrupoCliente = null;
+    const grupoBox = document.getElementById('mn-grupo-box');
+    if (grupoBox) grupoBox.style.display = 'none';
+  }
 }
 function closeModalOutside(e, id) {
   if (e.target.classList.contains('modal-overlay')) {
     closeModal(id);
-    // Reset grouped neg state if closing sel-titulo
-    if (id === 'modal-sel-titulo') {
-      _negGrupoIds = [];
-      _negGrupoCliente = null;
-    }
   }
 }
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    document.querySelectorAll('.modal-overlay.open').forEach(m => {
-      if (m.id === 'modal-sel-titulo') { _negGrupoIds = []; _negGrupoCliente = null; }
-      m.classList.remove('open');
-    });
-    document.body.style.overflow = '';
+    const openModals = document.querySelectorAll('.modal-overlay.open');
+    openModals.forEach(m => closeModal(m.id));
+    if (!document.querySelector('.modal-overlay.open')) document.body.style.overflow = '';
   }
 });
 
@@ -2730,6 +2730,7 @@ function renderTituloRow(t) {
       <button class="act-btn success" title="Gerar Acordo" onclick='prefillAcordo(${t.id})'>${svgHeart}</button>
       <button class="act-btn${jaRecebido?' danger':' success'}" title="${jaRecebido?'Já recebido':'Marcar como recebido'}" onclick='${jaRecebido?'toast("Este título já foi baixado como recebido.","warn")':'abrirRecebimento('+t.id+')'}'>${svgCheck}</button>
       <button class="act-btn" title="Histórico" onclick='verHistorico(${t.id})'>${svgHist}</button>
+      <button class="act-btn danger" title="Excluir Título" onclick='confirmDeleteTitulo(${t.id})'>${svgTrash}</button>
     </div></td>
   </tr>`;
 }
@@ -2982,6 +2983,10 @@ function prefillNeg(id) {
   document.getElementById('mn-id').value = '';
   document.getElementById('modal-neg-title').textContent = 'Nova Negociação';
   ['mn-cliente','mn-documento','mn-resumo','mn-proxacao','mn-obs','mn-contato'].forEach(fid => { const el=document.getElementById(fid); if(el) el.value=''; });
+  // Limpar estado de negociação agrupada anterior
+  _negGrupoIds = [];
+  const grupoBox = document.getElementById('mn-grupo-box');
+  if (grupoBox) grupoBox.style.display = 'none';
   if (t) {
     document.getElementById('mn-cliente').value = t.cliente;
     document.getElementById('mn-documento').value = t.documento;
@@ -3042,6 +3047,10 @@ function editNegociacao(id) {
   const n = DB.negociacoes.find(x => x.id === id);
   if (!n) return;
   if (n.revertido) { toast('Negociação revertida não pode ser editada.', 'warn'); return; }
+  // Limpar estado de negociação agrupada
+  _negGrupoIds = [];
+  const grupoBox = document.getElementById('mn-grupo-box');
+  if (grupoBox) grupoBox.style.display = 'none';
   document.getElementById('mn-id').value = n.id;
   document.getElementById('modal-neg-title').textContent = 'Editar Negociação';
   document.getElementById('mn-cliente').value = n.cliente;
@@ -3415,6 +3424,51 @@ function confirmDeleteNeg(id) {
       renderTitulosTable();
       renderDashboard();
       toast('Negociação removida. Processo devolvido para Títulos.', 'info');
+    }
+  );
+}
+
+// ═══════════════════════════════════════════════════════
+// TÍTULOS — EXCLUIR
+// ═══════════════════════════════════════════════════════
+function confirmDeleteTitulo(id) {
+  const t = DB.titulos.find(x => x.id === id);
+  if (!t) return;
+  const negsVinc = DB.negociacoes.filter(n => n.documento === t.documento);
+  const acordosVinc = DB.acordos.filter(a => a.documento === t.documento);
+  let aviso = `Tem certeza que deseja excluir definitivamente o título ${t.documento} (${t.cliente}) no valor de ${fmt.brl(t.valorOriginal)}?`;
+  if (negsVinc.length || acordosVinc.length) {
+    aviso += `\n\nAtenção: este título possui ${negsVinc.length ? negsVinc.length + ' negociação(ões)' : ''}${negsVinc.length && acordosVinc.length ? ' e ' : ''}${acordosVinc.length ? acordosVinc.length + ' acordo(s)' : ''} vinculado(s) que também serão excluídos.`;
+  }
+  aviso += '\n\nEsta ação não pode ser desfeita.';
+  showConfirm(
+    'Excluir Título',
+    `${t.cliente} — ${t.documento}`,
+    aviso,
+    'Excluir Título', 'btn-danger',
+    () => {
+      // Remover negociações vinculadas
+      negsVinc.forEach(n => {
+        const idx = DB.negociacoes.findIndex(x => x.id === n.id);
+        if (idx > -1) DB.negociacoes.splice(idx, 1);
+        if (window.fbDelete) window.fbDelete('negociacoes', n.id);
+      });
+      // Remover acordos vinculados
+      acordosVinc.forEach(a => {
+        const idx = DB.acordos.findIndex(x => x.id === a.id);
+        if (idx > -1) DB.acordos.splice(idx, 1);
+        if (window.fbDelete) window.fbDelete('acordos', a.id);
+      });
+      // Remover título
+      const idx = DB.titulos.findIndex(x => x.id === id);
+      if (idx > -1) DB.titulos.splice(idx, 1);
+      delete HISTORICO[id];
+      if (window.fbDelete) window.fbDelete('titulos', id);
+      renderTitulosTable();
+      renderNegTable();
+      renderAcordosTable();
+      renderDashboard();
+      toast(`Título ${t.documento} excluído com sucesso.`, 'info');
     }
   );
 }
