@@ -3941,6 +3941,28 @@ function fbSaveAll(tituloIds, negIds, acordoIds) {
   });
 }
 
+// Sincronização de config/params em tempo real
+window._applyConfigSync = function(remoteParams) {
+  if (document.querySelector('.modal-overlay.open')) return;
+  let changed = false;
+  ['multa','juros','responsaveis','canais','statusCobranca','statusAcordo','faixas'].forEach(k => {
+    if (remoteParams[k] !== undefined && JSON.stringify(PARAMS[k]) !== JSON.stringify(remoteParams[k])) {
+      PARAMS[k] = remoteParams[k];
+      changed = true;
+    }
+  });
+  if (changed) {
+    renderParamTags('responsaveis', 'p-responsaveis-list');
+    renderParamTags('canais', 'p-canais-list');
+    renderParamTags('statusCobranca', 'p-status-list');
+    renderParamTags('statusAcordo', 'p-acordostatus-list');
+    populateParamInputs();
+    populateSelects();
+    renderTitulosTable();
+    renderDashboard();
+  }
+};
+
 // Sincronização em tempo real vinda do Firestore (onSnapshot)
 let _syncLock = false; // evita sobrescrever enquanto modal está aberto
 window._applyFirebaseSync = function(remote) {
@@ -4062,6 +4084,26 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // ═══════════════════════════════════════════════════════
+// POPULATE PARAM INPUTS FROM PARAMS OBJECT
+// ═══════════════════════════════════════════════════════
+function populateParamInputs() {
+  const multaEl = document.getElementById('p-multa');
+  const jurosEl = document.getElementById('p-juros');
+  if (multaEl) multaEl.value = PARAMS.multa;
+  if (jurosEl) jurosEl.value = PARAMS.juros;
+  if (PARAMS.faixas && PARAMS.faixas.length === 4) {
+    const ids = ['faixa1min','faixa1max','faixa2min','faixa2max','faixa3min','faixa3max','faixa4min'];
+    const vals = [
+      PARAMS.faixas[0].min, PARAMS.faixas[0].max,
+      PARAMS.faixas[1].min, PARAMS.faixas[1].max,
+      PARAMS.faixas[2].min, PARAMS.faixas[2].max,
+      PARAMS.faixas[3].min
+    ];
+    ids.forEach((id, i) => { const el = document.getElementById(id); if (el) el.value = vals[i]; });
+  }
+}
+
+// ═══════════════════════════════════════════════════════
 // POPULATE SELECTS FROM PARAMS
 // ═══════════════════════════════════════════════════════
 function populateSelects() {
@@ -4101,6 +4143,7 @@ function init() {
   renderParamTags('canais', 'p-canais-list');
   renderParamTags('statusCobranca', 'p-status-list');
   renderParamTags('statusAcordo', 'p-acordostatus-list');
+  populateParamInputs();
   populateSelects();
   renderTitulosTable();
   renderNegTable();
@@ -4170,8 +4213,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // ═══════════════════════════════════════════════════════
 // FIREBASE — MÓDULO ESM (integrado ao index.html)
 // ═══════════════════════════════════════════════════════
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.12.1/firebase-analytics.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-analytics.js";
 import {
   getFirestore,
   collection,
@@ -4180,7 +4223,7 @@ import {
   deleteDoc,
   getDocs,
   onSnapshot
-} from "https://www.gstatic.com/firebasejs/12.12.1/firebase-firestore.js";
+} from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDRWg8pZXr_RY6Z_ofHnNxL5QbkqW7JhjI",
@@ -4260,6 +4303,14 @@ window.fbStartListeners = () => {
   onSnapshot(collection(db, 'titulos'), s => { snap.t = s.docs.map(d => d.data()); merge(); });
   onSnapshot(collection(db, 'negociacoes'), s => { snap.n = s.docs.map(d => d.data()); merge(); });
   onSnapshot(collection(db, 'acordos'), s => { snap.a = s.docs.map(d => d.data()); merge(); });
+  // Config — sincronização em tempo real
+  onSnapshot(collection(db, 'config'), s => {
+    s.docs.forEach(d => {
+      if (d.id === 'params' && typeof window._applyConfigSync === 'function') {
+        window._applyConfigSync(d.data());
+      }
+    });
+  });
 };
 </script>
 
