@@ -1034,6 +1034,43 @@ td.text-muted { color: var(--text-2); font-size: 12px; }
 }
 .app-footer strong{color:var(--text-2);font-weight:600}
 
+/* ═══ IMPORTAÇÃO XLSX ═══════════════════════════ */
+.import-dropzone{border:2px dashed var(--border-2);border-radius:var(--radius-lg);padding:32px 20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--surface-2);position:relative}
+.import-dropzone:hover,.import-dropzone.dragover{border-color:var(--accent);background:var(--accent-glow)}
+.import-dropzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.import-dropzone-icon{width:44px;height:44px;margin:0 auto 10px;border-radius:var(--radius-md);background:var(--accent-glow);display:flex;align-items:center;justify-content:center;color:var(--accent)}
+.import-dropzone-icon svg{width:22px;height:22px}
+.import-dropzone-text{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px}
+.import-dropzone-sub{font-size:11px;color:var(--text-3)}
+.import-file-info{display:flex;align-items:center;gap:10px;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:14px}
+.import-file-badge{width:34px;height:34px;border-radius:var(--radius-sm);background:rgba(16,185,129,.12);color:var(--green);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.import-file-badge svg{width:16px;height:16px}
+.import-file-name{font-size:13px;font-weight:600;color:var(--text);flex:1}
+.import-file-size{font-size:11px;color:var(--text-3)}
+.import-file-remove{cursor:pointer;color:var(--text-3);transition:color .15s}
+.import-file-remove:hover{color:var(--red)}
+.import-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px}
+.import-stat{background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-md);padding:10px 14px;text-align:center}
+.import-stat-val{font-size:20px;font-weight:800;font-family:var(--font-mono);letter-spacing:-.5px;color:var(--text)}
+.import-stat-val.text-green{color:var(--green)}
+.import-stat-val.text-amber{color:var(--amber)}
+.import-stat-val.text-red{color:var(--red)}
+.import-stat-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);margin-top:2px}
+.import-preview-scroll{max-height:320px;overflow:auto;border:1px solid var(--border);border-radius:var(--radius-md);margin-bottom:14px}
+.import-preview-scroll table{width:100%;border-collapse:collapse;font-size:12px}
+.import-preview-scroll thead th{position:sticky;top:0;background:var(--surface-2);border-bottom:1px solid var(--border);padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text-3);white-space:nowrap;z-index:1}
+.import-preview-scroll tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
+.import-preview-scroll tbody tr:last-child{border-bottom:none}
+.import-preview-scroll tbody tr:hover{background:var(--surface-2)}
+.import-preview-scroll tbody tr.row-dup{opacity:.45;text-decoration:line-through}
+.import-preview-scroll tbody td{padding:6px 10px;white-space:nowrap;color:var(--text)}
+.import-preview-scroll tbody td.mono{font-family:var(--font-mono);font-size:11px}
+.import-warn-box{background:rgba(251,176,64,.08);border:1px solid rgba(251,176,64,.25);border-radius:var(--radius-md);padding:10px 14px;font-size:12px;color:var(--amber);margin-bottom:14px;display:flex;align-items:flex-start;gap:8px;line-height:1.5}
+.import-warn-box strong{font-weight:700}
+.import-batch-bar{display:flex;align-items:center;gap:10px;background:rgba(79,125,255,.06);border:1px solid rgba(79,125,255,.2);border-radius:var(--radius-md);padding:10px 14px;margin-bottom:14px}
+.import-batch-bar .batch-info{flex:1;font-size:12px;color:var(--text-2)}
+.import-batch-bar .batch-info strong{color:var(--text);font-weight:700}
+
 </style>
 </head>
 <body>
@@ -1205,6 +1242,10 @@ td.text-muted { color: var(--text-2); font-size: 12px; }
           <button class="btn btn-secondary view-toggle-btn" id="btn-toggle-view" onclick="toggleTitulosView()" title="Alternar visualização">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:13px;height:13px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
             Por Cliente
+          </button>
+          <button class="btn btn-secondary" onclick="openImportPDF()" title="Importar relatório PDF do Bling">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+            Importar PDF Bling
           </button>
           <button class="btn btn-secondary" onclick="abrirNegGrupada()" title="Negociar múltiplos títulos do mesmo cliente">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -2104,6 +2145,81 @@ td.text-muted { color: var(--text-2); font-size: 12px; }
   </div>
 </div>
 
+<!-- MODAL IMPORTAR PDF BLING -->
+<div class="modal-overlay" id="modal-import-xlsx" onclick="closeModalOutside(event,'modal-import-xlsx')">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Importar PDF do Bling</div>
+        <div class="modal-subtitle">Contas a receber — Importação com verificação de duplicatas</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-import-xlsx')">✕</button>
+    </div>
+    <div class="modal-body">
+      <!-- STEP 1: Upload -->
+      <div id="import-step-upload">
+        <div class="modal-info-box">
+          <strong>Como gerar o PDF no Bling:</strong> Acesse <em>Financeiro → Contas a Receber → Relatórios → Agrupado por Cliente</em>, defina o período desejado e exporte em <strong>PDF</strong>. Importe o arquivo aqui — o sistema extrai automaticamente todos os clientes e títulos.
+        </div>
+        <div class="import-dropzone" id="import-dropzone">
+          <input type="file" accept=".pdf" onchange="handleImportFile(this.files[0])">
+          <div class="import-dropzone-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+              <polyline points="14 2 14 8 20 8"/>
+              <line x1="16" y1="13" x2="8" y2="13"/>
+              <line x1="16" y1="17" x2="8" y2="17"/>
+            </svg>
+          </div>
+          <div class="import-dropzone-text">Clique ou arraste o arquivo PDF do Bling</div>
+          <div class="import-dropzone-sub">Relatório "Contas a Receber Agrupado por Cliente" · Máx 20 MB</div>
+        </div>
+      </div>
+      <!-- STEP 2: Preview -->
+      <div id="import-step-preview" style="display:none">
+        <div class="import-file-info">
+          <div class="import-file-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></div>
+          <div>
+            <div class="import-file-name" id="import-fname">—</div>
+            <div class="import-file-size" id="import-fsize">—</div>
+          </div>
+          <button class="import-file-remove" onclick="resetImport()" title="Remover arquivo">✕</button>
+        </div>
+        <div class="import-stats">
+          <div class="import-stat">
+            <div class="import-stat-val text-green" id="import-stat-new">0</div>
+            <div class="import-stat-label">Novos</div>
+          </div>
+          <div class="import-stat">
+            <div class="import-stat-val text-amber" id="import-stat-dup">0</div>
+            <div class="import-stat-label">Duplicados</div>
+          </div>
+          <div class="import-stat">
+            <div class="import-stat-val" id="import-stat-total">0</div>
+            <div class="import-stat-label">Total PDF</div>
+          </div>
+        </div>
+        <div class="import-warn-box" id="import-dup-warn" style="display:none">
+          <strong>⚠</strong> <span id="import-dup-msg">Duplicados detectados (mesmo cliente + documento + vencimento + valor). Serão ignorados automaticamente.</span>
+        </div>
+        <div class="import-preview-scroll">
+          <table>
+            <thead><tr><th>#</th><th>Cliente</th><th>Documento</th><th>Vencimento</th><th>Valor (R$)</th><th>Status</th></tr></thead>
+            <tbody id="import-preview-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('modal-import-xlsx')">Cancelar</button>
+      <button class="btn btn-primary" id="import-btn-confirm" onclick="executeImport()" style="display:none">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="width:14px;height:14px"><polyline points="20 6 9 17 4 12"/></svg>
+        Importar Títulos
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST CONTAINER -->
 <div id="toast-container"></div>
 
@@ -2116,7 +2232,7 @@ const TODAY = new Date();
 const PARAMS = {
   multa: 2,
   juros: 1,
-  responsaveis: ['Ana Lima', 'Carlos Melo', 'Débora Souza'],
+  responsaveis: ['Ana Lima', 'Carlos Melo', 'Débora Souza', 'Kauane'],
   canais: ['WhatsApp', 'Ligação', 'E-mail', 'Presencial'],
   statusCobranca: ['Sem ação','Cobrança iniciada','Aguardando retorno','Em negociação','Acordo fechado','Quebra de acordo','Encaminhado para protesto','Protestado','Recebido','Incobrável'],
   statusAcordo: ['Ativo','Cumprido','Atrasado','Quebrado','Cancelado'],
@@ -4262,8 +4378,344 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 5000);
   }
 });
+
+// ═══════════════════════════════════════════════════════
+// IMPORTAÇÃO XLSX — SISTEMA COMPLETO
+// ═══════════════════════════════════════════════════════
+
+let _importParsed = [];       // dados parseados da planilha
+let _lastImportBatch = null;  // ID do último lote importado
+
+// ── Carrega PDF.js sob demanda ─────────────────────────
+function _loadPDFJS() {
+  return new Promise((resolve, reject) => {
+    if (window.pdfjsLib) { resolve(); return; }
+    const s = document.createElement('script');
+    s.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js';
+    s.onload = () => {
+      window.pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+      resolve();
+    };
+    s.onerror = () => reject(new Error('Falha ao carregar PDF.js'));
+    document.head.appendChild(s);
+  });
+}
+
+function openImportPDF() {
+  resetImport();
+  openModal('modal-import-xlsx');
+  _loadPDFJS().catch(() => toast('Erro ao carregar biblioteca PDF. Verifique sua conexão.', 'error'));
+}
+
+function resetImport() {
+  _importParsed = [];
+  document.getElementById('import-step-upload').style.display = '';
+  document.getElementById('import-step-preview').style.display = 'none';
+  document.getElementById('import-btn-confirm').style.display = 'none';
+  const dz = document.getElementById('import-dropzone');
+  if (dz) { const inp = dz.querySelector('input'); if (inp) inp.value = ''; }
+}
+
+// ── Drag & drop ────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', () => {
+  const dz = document.getElementById('import-dropzone');
+  if (!dz) return;
+  dz.addEventListener('dragover', e => { e.preventDefault(); dz.classList.add('dragover'); });
+  dz.addEventListener('dragleave', () => dz.classList.remove('dragover'));
+  dz.addEventListener('drop', e => {
+    e.preventDefault(); dz.classList.remove('dragover');
+    if (e.dataTransfer.files[0]) handleImportFile(e.dataTransfer.files[0]);
+  });
+});
+
+function handleImportFile(file) {
+  if (!file) return;
+  if (!file.name.match(/\.pdf$/i)) { toast('Selecione um arquivo PDF válido.', 'error'); return; }
+  if (file.size > 20 * 1024 * 1024) { toast('Arquivo muito grande (máx 20 MB).', 'error'); return; }
+
+  _loadPDFJS().then(() => {
+    const reader = new FileReader();
+    reader.onload = async e => {
+      try {
+        const typedArray = new Uint8Array(e.target.result);
+        const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+        let fullText = '';
+        for (let p = 1; p <= pdf.numPages; p++) {
+          const page = await pdf.getPage(p);
+          const content = await page.getTextContent();
+          // Agrupa itens por linha (mesma coordenada Y aproximada)
+          const items = content.items;
+          const lines = [];
+          let curY = null, curLine = [];
+          items.forEach(it => {
+            const y = Math.round(it.transform[5]);
+            if (curY === null) curY = y;
+            if (Math.abs(y - curY) > 3) {
+              if (curLine.length) lines.push(curLine.join(' '));
+              curLine = []; curY = y;
+            }
+            const str = it.str.trim();
+            if (str) curLine.push(str);
+          });
+          if (curLine.length) lines.push(curLine.join(' '));
+          fullText += lines.join('\n') + '\n';
+        }
+        _parseBlingPDF(fullText, file.name, file.size);
+      } catch (err) {
+        console.error(err);
+        toast('Erro ao ler PDF: ' + err.message, 'error');
+      }
+    };
+    reader.readAsArrayBuffer(file);
+  }).catch(() => toast('Biblioteca PDF não disponível.', 'error'));
+}
+
+// ── Parser do PDF Bling "Contas a Receber Agrupado por Cliente" ─────
+function _parseBlingPDF(text, fname, fsize) {
+  const records = [];
+  const lines = text.split('\n');
+
+  // Linhas a ignorar (cabeçalhos, rodapés, totais, período)
+  const SKIP = /^(Total|Histórico|Período|Relatório|https?:|Bling\s*-|^\d{2}\/\d{2}\/\d{4},\s*\d)/i;
+
+  // Padrão de uma linha de título do Bling:
+  // Captura: [histórico + forma pagto] DOCNUM(9-12d) DATA(dd/mm/aaaa) SITUAÇÃO VALOR
+  const TITLE_RE = /^(.+?)\s+(\d{9,12})\s+(\d{2}\/\d{2}\/\d{4})\s+\S+\s+([\d.]+,\d{2})\s*$/;
+
+  // Formas de pagamento que devem ser removidas do final do histórico
+  const FORMA_RE = /\s+(Boleto\s*-\s*Bling\s*Conta|Conta\s+a\s+receber\/pagar|PIX\s+CNPJ|Boleto|Dinheiro|PIX|Cheque|Transferência)\s*$/i;
+
+  let currentClient = '';
+
+  lines.forEach(raw => {
+    const line = raw.trim();
+    if (!line) return;
+    if (SKIP.test(line)) return;
+
+    const m = TITLE_RE.exec(line);
+    if (m) {
+      // ── É uma linha de título ──
+      if (!currentClient) return; // sem cliente → descarta
+
+      // Histórico: tudo antes do Nro. documento, sem a forma de pagamento
+      const historico = m[1].replace(FORMA_RE, '').trim();
+      const dataBR    = m[3];  // ex: 26/04/2026
+      const valorStr  = m[4];  // ex: 800,00 ou 1.516,66
+
+      // Converte data BR → ISO
+      const [dd, mm2, yyyy] = dataBR.split('/');
+      const vencimento = `${yyyy}-${mm2}-${dd}`;
+
+      // Converte valor BR → float
+      let vs = valorStr.replace(/\./g, '').replace(',', '.');
+      const valor = Math.round(parseFloat(vs) * 100) / 100;
+
+      if (vencimento && valor > 0 && historico) {
+        records.push({ c: currentClient, d: historico, v: vencimento, val: valor });
+      }
+    } else {
+      // ── Candidato a linha de cliente ──
+      // Ignora linhas muito curtas, números isolados, linhas de paginação
+      if (line.length < 3) return;
+      if (/^\d+$/.test(line)) return;
+      if (/^R\$\s*[\d.,]+$/.test(line)) return;
+
+      // Extrai só o nome (antes do primeiro parêntese, se houver)
+      const nome = line.split('(')[0].trim();
+      if (nome.length >= 3) currentClient = nome;
+    }
+  });
+
+  _importParsed = records;
+  _showImportPreview(fname, fsize);
+}
+
+function _showImportPreview(fname, fsize) {
+  document.getElementById('import-step-upload').style.display = 'none';
+  document.getElementById('import-step-preview').style.display = '';
+  document.getElementById('import-fname').textContent = fname;
+  document.getElementById('import-fsize').textContent = (fsize / 1024).toFixed(0) + ' KB · ' + _importParsed.length + ' registros';
+
+  // Check duplicates
+  let newCount = 0, dupCount = 0;
+  const tbody = document.getElementById('import-preview-tbody');
+  let html = '';
+
+  _importParsed.forEach((item, idx) => {
+    const isDup = DB.titulos.some(t =>
+      t.cliente === item.c &&
+      t.documento === item.d &&
+      t.vencimento === item.v &&
+      Math.abs(t.valorOriginal - item.val) < 0.01
+    );
+    if (isDup) dupCount++; else newCount++;
+
+    html += `<tr class="${isDup ? 'row-dup' : ''}">
+      <td class="mono" style="color:var(--text-3)">${idx + 1}</td>
+      <td style="font-weight:600">${item.c}</td>
+      <td class="mono">${item.d}</td>
+      <td class="mono">${fmt.date(item.v)}</td>
+      <td class="mono text-right">${fmt.brl(item.val)}</td>
+      <td>${isDup ? '<span class="badge badge-aberto" style="font-size:10px">Duplicado</span>' : '<span class="badge badge-ativo" style="font-size:10px">Novo</span>'}</td>
+    </tr>`;
+  });
+
+  tbody.innerHTML = html;
+  document.getElementById('import-stat-new').textContent = newCount;
+  document.getElementById('import-stat-dup').textContent = dupCount;
+  document.getElementById('import-stat-total').textContent = _importParsed.length;
+
+  // Duplicate warning
+  const warnBox = document.getElementById('import-dup-warn');
+  if (dupCount > 0) {
+    warnBox.style.display = 'flex';
+    document.getElementById('import-dup-msg').textContent = dupCount + ' título(s) duplicado(s) detectado(s) (mesmo cliente + documento + vencimento + valor). Serão ignorados automaticamente.';
+  } else {
+    warnBox.style.display = 'none';
+  }
+
+  // Show/hide confirm button
+  document.getElementById('import-btn-confirm').style.display = newCount > 0 ? '' : 'none';
+  if (newCount === 0) {
+    toast('Todos os títulos desta planilha já existem no sistema.', 'warn');
+  }
+}
+
+function executeImport() {
+  if (!_importParsed.length) return;
+
+  const batchId = 'import_' + Date.now();
+  const now = new Date().toISOString();
+  let imported = 0, skipped = 0;
+
+  _importParsed.forEach(item => {
+    const isDup = DB.titulos.some(t =>
+      t.cliente === item.c &&
+      t.documento === item.d &&
+      t.vencimento === item.v &&
+      Math.abs(t.valorOriginal - item.val) < 0.01
+    );
+    if (isDup) { skipped++; return; }
+
+    const newId = DB.nextId.titulos++;
+    const titulo = {
+      id: newId,
+      cliente: item.c,
+      documento: item.d,
+      emissao: item.v,
+      vencimento: item.v,
+      valorOriginal: item.val,
+      situacao: 'Em aberto',
+      status: 'Sem ação',
+      responsavel: 'Kauane',
+      ultimoContato: '',
+      proxAcao: '',
+      competencia: '',
+      obs: '',
+      importBatch: batchId
+    };
+    DB.titulos.push(titulo);
+    HISTORICO[newId] = [{ data: now, tipo: 'Importação', desc: 'Título importado via PDF Bling. Lote: ' + batchId, cor: '#9CA3AF' }];
+    fbSaveTitulo(newId);
+    imported++;
+  });
+
+  if (imported > 0) {
+    _lastImportBatch = batchId;
+    renderTitulosTable();
+    renderDashboard();
+    closeModal('modal-import-xlsx');
+    toast(imported + ' título(s) importado(s) com sucesso!' + (skipped ? ' (' + skipped + ' duplicado(s) ignorado(s))' : ''), 'success');
+
+    // Mostrar barra de desfazer na aba títulos
+    _showImportBatchBar(batchId, imported);
+  }
+}
+
+function _showImportBatchBar(batchId, count) {
+  // Remove barra anterior se existir
+  const oldBar = document.getElementById('import-batch-active');
+  if (oldBar) oldBar.remove();
+
+  const bar = document.createElement('div');
+  bar.id = 'import-batch-active';
+  bar.className = 'import-batch-bar';
+  bar.innerHTML = `
+    <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" style="width:18px;height:18px;flex-shrink:0">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <div class="batch-info">
+      <strong>${count} título(s)</strong> importado(s) agora · Lote: <code style="font-family:var(--font-mono);font-size:11px;background:var(--surface-3);padding:1px 5px;border-radius:3px">${batchId.replace('import_','')}</code>
+    </div>
+    <button class="btn btn-danger btn-sm" onclick="undoImportBatch('${batchId}')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:12px;height:12px"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+      Desfazer Importação
+    </button>
+    <button class="btn btn-ghost btn-sm" onclick="this.closest('.import-batch-bar').remove()" style="padding:4px 8px">✕</button>
+  `;
+
+  const target = document.getElementById('titulos-resumo');
+  if (target) target.parentNode.insertBefore(bar, target);
+}
+
+function undoImportBatch(batchId) {
+  const batchTitulos = DB.titulos.filter(t => t.importBatch === batchId);
+  if (!batchTitulos.length) { toast('Nenhum título encontrado neste lote.', 'warn'); return; }
+
+  // Verificar se algum título tem negociação ou acordo vinculado
+  const hasVinc = batchTitulos.some(t => {
+    return DB.negociacoes.some(n => n.documento === t.documento && !n.revertido) ||
+           DB.acordos.some(a => a.documento === t.documento);
+  });
+
+  let msg = `Tem certeza que deseja excluir TODOS os ${batchTitulos.length} títulos do lote "${batchId.replace('import_','')}"?`;
+  if (hasVinc) msg += '\n\n⚠ Alguns títulos possuem negociações ou acordos vinculados que também serão excluídos.';
+  msg += '\n\nEsta ação não pode ser desfeita.';
+
+  showConfirm(
+    'Desfazer Importação em Lote',
+    batchTitulos.length + ' título(s) serão excluídos',
+    msg,
+    'Excluir Lote', 'btn-danger',
+    () => {
+      let deleted = 0;
+      batchTitulos.forEach(t => {
+        // Remove negociações vinculadas
+        DB.negociacoes.filter(n => n.documento === t.documento).forEach(n => {
+          const idx = DB.negociacoes.indexOf(n);
+          if (idx > -1) DB.negociacoes.splice(idx, 1);
+          if (window.fbDelete) window.fbDelete('negociacoes', n.id);
+        });
+        // Remove acordos vinculados
+        DB.acordos.filter(a => a.documento === t.documento).forEach(a => {
+          const idx = DB.acordos.indexOf(a);
+          if (idx > -1) DB.acordos.splice(idx, 1);
+          if (window.fbDelete) window.fbDelete('acordos', a.id);
+        });
+        // Remove título
+        const idx = DB.titulos.indexOf(t);
+        if (idx > -1) DB.titulos.splice(idx, 1);
+        delete HISTORICO[t.id];
+        if (window.fbDelete) window.fbDelete('titulos', t.id);
+        deleted++;
+      });
+
+      // Remove barra
+      const bar = document.getElementById('import-batch-active');
+      if (bar) bar.remove();
+
+      renderTitulosTable();
+      renderNegTable();
+      renderAcordosTable();
+      renderDashboard();
+      toast(deleted + ' título(s) excluído(s) do lote de importação.', 'info');
+    }
+  );
+}
 </script>
 <script type="module">
+
 // ═══════════════════════════════════════════════════════
 // FIREBASE — MÓDULO ESM (integrado ao index.html)
 // ═══════════════════════════════════════════════════════
